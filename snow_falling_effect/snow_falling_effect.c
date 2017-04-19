@@ -1,4 +1,5 @@
 #include "snow_falling_effect.h"
+#include <stdio.h>
 #include <GL/gl.h>
 #include "glfw/include/glfw3.h"
 //------------------------------------------------------------------------------
@@ -117,6 +118,22 @@ void mouse_click_clb(GLFWwindow *pWindow, int aBtn, int aAction, int aMods)
 //------------------------------------------------------------------------------
 void processing_snow(int flake_on_line)
 {
+    int dx = 0;
+    int dy = 0;
+    static int isWind = 0;
+    static int wave = 0;
+    if(rand()%800 == 12)
+        isWind = 1;
+    if(isWind)
+    {
+        wave++;
+        // when wave of wind went to end screen, to need stop wind
+        if(wave > (int)(SCREEN_WIDTH*0.25))
+        {
+            wave = 0;
+            isWind = 0;
+        }
+    }
     for(int i = 0; i < flake_on_line; i++)
     {
         setFlake(rand()%SCREEN_WIDTH,0);
@@ -128,7 +145,30 @@ void processing_snow(int flake_on_line)
             if(scra[i][j] == FLAKE)
             {
                 scra[i][j] = 0;
-                setFlake(i,j+1);
+                dx = 0;
+                dy = 0;
+                if(isWind)
+                {
+
+                    // evenly blow wind
+                    // each iteration wave +1
+                    if(i < wave)
+                    {
+                        dx = (rand() % 2) ? 1 : -1;
+                        dy = 1;
+                    }
+                    else
+                    {
+                        dx = -1;
+                        dy = (rand() % 2) ? 1 : -1;
+                    }
+                }
+                else
+                {
+                    dx = (rand() % 2) ? 1 : -1;
+                    dy = 1;
+                }
+                setFlake(i+dx,j+dy);
             }
         }
     }
@@ -159,6 +199,6 @@ void setFlake(int x, int y)
     isOkY = ((y >=0) && (y<SCREEN_HEIGHT));
     if(isOkX && isOkY)
         scra[x][y] = FLAKE;
-    else
-        printf("outside\n");
+    //else
+     //   printf("outside\n");
 }

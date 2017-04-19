@@ -71,23 +71,36 @@ void snow_falling()
 {
     if(gl_init() == -1)
         return;
-    unsigned flake_on_line = 3;
+    int count_iter = 0;
     glClearColor(0.1,0.4,0.8,0);
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+        count_iter++;
 
-        processing_snow(7,scra);
-        draw_snow(scra,1);
-
-        processing_snow(3,scraSize2);
-        draw_snow(scraSize2,3);
-
-        processing_snow(1,scraSize3);
-        draw_snow(scraSize3,7);
-
+        switch(count_iter)
+        {
+            case 10:
+                processing_snow(7,scra);
+                draw_snow(scra,1);
+            break;
+            case 5:
+                processing_snow(3,scraSize2);
+                draw_snow(scraSize2,3);
+            break;
+            case 1:
+                processing_snow(1,scraSize3);
+                draw_snow(scraSize3,7);
+            break;
+            default:
+                draw_snow(scra,1);
+                draw_snow(scraSize2,3);
+                draw_snow(scraSize3,7);
+        }
+        if(count_iter > 10)
+            count_iter = 0;
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
         /* Poll for and process events */
@@ -131,13 +144,13 @@ void processing_snow(int flake_on_line,GLuint (*des)[SCREEN_HEIGHT])
     int dy = 0;
     static int isWind = 0;
     static int wave = 0;
-    /*if(rand()%800 == 12)
-        isWind = 1;*/
+    if(rand()%1000 == 12)
+        isWind = 1;
     if(isWind)
     {
         wave++;
         // when wave of wind went to end screen, to need stop wind
-        if(wave > (int)(SCREEN_WIDTH*0.25))
+        if(wave > (int)(SCREEN_WIDTH*0.3))
         {
             wave = 0;
             isWind = 0;

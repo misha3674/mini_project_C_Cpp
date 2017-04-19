@@ -72,6 +72,7 @@ void snow_falling()
     if(gl_init() == -1)
         return;
     int count_iter = 0;
+    unsigned d = 0;
     glClearColor(0.1,0.4,0.8,0);
     while (!glfwWindowShouldClose(window))
     {
@@ -80,26 +81,21 @@ void snow_falling()
         glLoadIdentity();
         count_iter++;
 
-        switch(count_iter)
-        {
-            case 10:
-                processing_snow(7,scra);
-                draw_snow(scra,1);
-            break;
-            case 5:
-                processing_snow(3,scraSize2);
-                draw_snow(scraSize2,3);
-            break;
-            case 1:
-                processing_snow(1,scraSize3);
-                draw_snow(scraSize3,7);
-            break;
-            default:
-                draw_snow(scra,1);
-                draw_snow(scraSize2,3);
-                draw_snow(scraSize3,7);
-        }
-        if(count_iter > 10)
+        if(count_iter%6 == 0)
+            processing_snow(7,scra);
+        if(count_iter%3 == 0)
+            processing_snow(2,scraSize2);
+
+        if(rand()%60 > 50)
+            d = 1;
+        else
+            d = 0;
+        processing_snow(d,scraSize3);
+
+        draw_snow(scra,1);
+        draw_snow(scraSize2,4);
+        draw_snow(scraSize3,7);
+        if(count_iter > 6)
             count_iter = 0;
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

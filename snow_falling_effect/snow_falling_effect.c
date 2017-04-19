@@ -14,14 +14,16 @@ int    scr_height    = 0;
 float  w_ratio       = 0.f;
 float  h_ratio       = 0.f;
 GLuint scra[SCREEN_WIDTH][SCREEN_HEIGHT] = {{0}};
+GLuint scraSize2[SCREEN_WIDTH][SCREEN_HEIGHT] = {{0}};
+GLuint scraSize3[SCREEN_WIDTH][SCREEN_HEIGHT] = {{0}};
 //------------------------------------------------------------------------------
 void resize_clb     (GLFWwindow*, int, int);
 void key_click_clb  (GLFWwindow*, int, int, int, int);
 void mouse_click_clb(GLFWwindow*, int, int, int);
 //------------------------------------------------------------------------------
-void processing_snow(int);
-void draw_snow();
-void setFlake(int x, int y);
+void processing_snow(int flake_on_line, GLuint (*des)[SCREEN_HEIGHT]);
+void draw_snow(GLuint (*source)[SCREEN_HEIGHT], int size);
+void setFlake(int x, int y, GLuint (*des)[SCREEN_HEIGHT]);
 //------------------------------------------------------------------------------
 
 int gl_init()
@@ -77,8 +79,15 @@ void snow_falling()
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        processing_snow(flake_on_line);
-        draw_snow();
+        processing_snow(7,scra);
+        draw_snow(scra,1);
+
+        processing_snow(3,scraSize2);
+        draw_snow(scraSize2,3);
+
+        processing_snow(1,scraSize3);
+        draw_snow(scraSize3,7);
+
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
         /* Poll for and process events */
@@ -116,14 +125,14 @@ void mouse_click_clb(GLFWwindow *pWindow, int aBtn, int aAction, int aMods)
     }
 }
 //------------------------------------------------------------------------------
-void processing_snow(int flake_on_line)
+void processing_snow(int flake_on_line,GLuint (*des)[SCREEN_HEIGHT])
 {
     int dx = 0;
     int dy = 0;
     static int isWind = 0;
     static int wave = 0;
-    if(rand()%800 == 12)
-        isWind = 1;
+    /*if(rand()%800 == 12)
+        isWind = 1;*/
     if(isWind)
     {
         wave++;
@@ -136,15 +145,15 @@ void processing_snow(int flake_on_line)
     }
     for(int i = 0; i < flake_on_line; i++)
     {
-        setFlake(rand()%SCREEN_WIDTH,0);
+        setFlake(rand()%SCREEN_WIDTH,0,des);
     }
     for(int j = SCREEN_HEIGHT - 1; j>=0; j--)
     {
         for(int i = 0; i < SCREEN_WIDTH; i++)
         {
-            if(scra[i][j] == FLAKE)
+            if(des[i][j] == FLAKE)
             {
-                scra[i][j] = 0;
+                des[i][j] = 0;
                 dx = 0;
                 dy = 0;
                 if(isWind)
@@ -168,22 +177,22 @@ void processing_snow(int flake_on_line)
                     dx = (rand() % 2) ? 1 : -1;
                     dy = 1;
                 }
-                setFlake(i+dx,j+dy);
+                setFlake(i+dx,j+dy,des);
             }
         }
     }
 }
 //------------------------------------------------------------------------------
-void draw_snow()
+void draw_snow(GLuint (*source)[SCREEN_HEIGHT], int size)
 {
     glColor3ub(254,254,254);
-    glPointSize(2);
+    glPointSize(size);
     glBegin(GL_POINTS);
         for(int j = SCREEN_HEIGHT - 1; j>=0; j--)
         {
             for(int i = 0; i < SCREEN_WIDTH; i++)
             {
-                if(scra[i][j] == FLAKE)
+                if(source[i][j] == FLAKE)
                 {
                     glVertex2i(i,j);
                 }
@@ -191,14 +200,14 @@ void draw_snow()
         }
     glEnd();
 }
-void setFlake(int x, int y)
+void setFlake(int x, int y, GLuint (*des)[SCREEN_HEIGHT])
 {
     unsigned int isOkX = 0;
     unsigned int isOkY = 0;
     isOkX = ((x >=0) && (x<SCREEN_WIDTH));
     isOkY = ((y >=0) && (y<SCREEN_HEIGHT));
     if(isOkX && isOkY)
-        scra[x][y] = FLAKE;
+        des[x][y] = FLAKE;
     //else
      //   printf("outside\n");
 }

@@ -55,7 +55,7 @@ int gl_init()
     glfwSetMouseButtonCallback(window, mouse_click_clb);
 
 
-    glViewport(0, 0, (GLsizei)SCREEN_WIDTH, (GLsizei)SCREEN_HEIGHT);
+    glViewport(0,0, (GLsizei)SCREEN_WIDTH, (GLsizei)SCREEN_HEIGHT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 1);
@@ -104,7 +104,6 @@ void snow_falling()
     }
     glfwTerminate();
 }
-
 //------------------------------------------------------------------------------
 void resize_clb(GLFWwindow* window, int width, int height)
 {
@@ -165,7 +164,7 @@ void processing_snow(int flake_on_line,GLuint (*des)[SCREEN_HEIGHT])
                 des[i][j] = 0;
                 dx = 0;
                 dy = 0;
-                if(isWind)
+                if(isWind && (des != scra))
                 {
 
                     // evenly blow wind
@@ -177,7 +176,7 @@ void processing_snow(int flake_on_line,GLuint (*des)[SCREEN_HEIGHT])
                     }
                     else
                     {
-                        dx = -1;
+                        dx = 1;
                         dy = (rand() % 2) ? 1 : -1;
                     }
                 }

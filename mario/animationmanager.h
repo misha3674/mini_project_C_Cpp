@@ -2,7 +2,7 @@
 #define ANIMATIONMANAGER_H
 
 
-namespace anima{
+namespace game{
     class AnimationManager
     {
     public:

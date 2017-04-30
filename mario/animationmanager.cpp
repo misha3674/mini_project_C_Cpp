@@ -50,11 +50,11 @@ class Animation_my{
 
 std::map<std::string, Animation_my> animList;
 
-anima::AnimationManager::AnimationManager()
+game::AnimationManager::AnimationManager()
 {
     std::cout<< "Animation manange conttructor\n";
 }
-void anima::AnimationManager:: create(std::string name, sf::Texture &qimage,
+void game::AnimationManager:: create(std::string name, sf::Texture &qimage,
             int qx, int qy,
             int qw, int qh,
             int qcount)
@@ -62,28 +62,28 @@ void anima::AnimationManager:: create(std::string name, sf::Texture &qimage,
     animList[name] = Animation_my(qimage,qx,qy,qw,qh,qcount);
     this->currentAnamation = name;
 }
-void anima::AnimationManager::draw(sf::RenderWindow &aWindow, int x, int y)
+void game::AnimationManager::draw(sf::RenderWindow &aWindow, int x, int y)
 {
     animList[this->currentAnamation].sprite.setPosition(x,y);
     aWindow.draw(animList[this->currentAnamation].sprite);
 }
-void anima::AnimationManager::set(std::string name)
+void game::AnimationManager::set(std::string name)
 {
     this->currentAnamation = name;
 }
-void anima::AnimationManager::flip(bool b)
+void game::AnimationManager::flip(bool b)
 {
     animList[this->currentAnamation].isFlip = b;
 }
-void anima::AnimationManager::tick(float time)
+void game::AnimationManager::tick(float time)
 {
     animList[this->currentAnamation].tick(time);
 }
-void anima::AnimationManager::pause()
+void game::AnimationManager::pause()
 {
     animList[this->currentAnamation].isPlay = false;
 }
-void anima::AnimationManager::play()
+void game::AnimationManager::play()
 {
     animList[this->currentAnamation].isPlay = true;
 }

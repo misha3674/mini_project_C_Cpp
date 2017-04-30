@@ -4,7 +4,8 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    animationmanager.cpp
+    animationmanager.cpp \
+    player.cpp
 
 win32: LIBS += -L$$PWD/SFML/bin/ -lopenal32 -lsfml-audio-2
 win32: LIBS += -L$$PWD/SFML/bin/ -lsfml-audio-d-2 -lsfml-graphics-2 -lsfml-graphics-d-2 -lsfml-network-2
@@ -79,7 +80,9 @@ HEADERS += \
     SFML/Network.hpp \
     SFML/OpenGL.hpp \
     SFML/System.hpp \
-    animationmanager.h
+    animationmanager.h \
+    entity.h \
+    player.h
 
 DISTFILES += \
     a.txt

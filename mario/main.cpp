@@ -2,8 +2,12 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <list>
+#include<windows.h>
 #include "SFML/Graphics.hpp"
 #include "animationmanager.h"
+#include "player.h"
+#include "entity.h"
 
 const int H = 30;
 const int W = 40;
@@ -14,17 +18,11 @@ const int size_char_x  = 40;
 const int size_char_y  = 50;
 float offsetX = 0;
 float offsetY = 0;
-enum obj{
-  EMPTY = 0,
-  WALL,
-  TRE,
-  BONUS
-};
 int TileMap[H][W] = {
- {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {1,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -32,7 +30,7 @@ int TileMap[H][W] = {
     {1,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,1},
-    {1,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -55,109 +53,61 @@ int TileMap[H][W] = {
 void draw_map(sf::RenderWindow& window);
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------
-class PLAYER
-{
-public:
-    enum eState
-    {
-        STAY,
-        WALK,
-        DUCK,
-        JUMP,
-        CLIMP,
-        SWIM
-    };
-    eState  state;
-    anima::AnimationManager* an;
-    std::map<std::string,bool> key;
-    int dir;
-    bool onLadder, shoot, hit;
-    float top;
-    float left;
-    float  dx,dy,
-         x,y,
-         w,h;
-    PLAYER(anima::AnimationManager* a)
+
+class Bullet:public Entity{
+  public:
+    Bullet(game::AnimationManager* a, int aX, int aY, int direct)
     {
         an = a;
-        state=STAY;
-        hit=false;
-        an->play();
-        dx=dy=x=y=h=w= 0;
-        dir = 0;
-        top  = 0;
-        left = 0;
+        a->set("move");
+        x = aX;
+        y = aY;
+        dx = 0.005;
+        this->dir = direct;
+        if(this->dir == 1)
+            dx = -0.005;
+        w=h=18;
+        std::cout<<"Constructor BULLET\n";
+        life = true;
     }
-    void Keyboard()
+    ~Bullet()
     {
-        state = STAY;
-        shoot=false;
-        if (key["L"])
-        {
-            dir=1;
-            dx = -0.1;
-            state=WALK;
-        }
-        if (key["R"])
-        {
-            dir=0;
-            dx = 0.1;
-            state=WALK;
-        }
-        if (key["Up"])
-        {
-            state = JUMP;
-            dy = -0.25;
-        }
-        if (key["Down"])
-        {
-            state = DUCK;
-        }
-        if (key["Space"])
-            shoot=true;
-    }
-    void setAnimation()
-    {
-        if (state==STAY)
-            an->set("stay");
-        if (state==WALK)
-            an->set("walk");
-        if (state==JUMP)
-            an->set("jump");
-        if (state==DUCK)
-            an->set("duck");
-        if(shoot)
-            an->set("shoot");
-        an->flip(dir);
+        std::cout<<"Destructor BULLET\n";
     }
     void update(float time)
     {
-        Keyboard();
-        top  += dy;
-        left += dx;
-        setAnimation();
+        x += dx*time;
+        for(int i = y/16; i < (y+h)/16; i++)
+            for(int j = x/16; j < (x+w)/16; j++)
+                if(TileMap[i][j] == 1)
+                {
+                    an->set("explode");
+                    dx = 0;
+                    life = false;
+                }
         an->tick(time);
-        key["R"]=key["L"]=key["Up"]=key["Down"]=key["Space"]=false;
-        dx = 0;
-        dy = 0;
     }
 };
-// ----------------------------------------------------------------------
 // ----------------------------------------------------------------------
 int main()
 {
      sf::RenderWindow window(sf::VideoMode(340,340),"SFFL");
      sf::Texture tPlayer;
+     sf::Texture aBulet;
+     game::AnimationManager listAnim;
+     game::AnimationManager animBullet;
+     std::list<Entity*> entity;
+     std::list<Entity*>::iterator it;
+     game::Player Mario(&listAnim);
+     aBulet.loadFromFile("D:\\project_QT\\mini_project\\mario\\bullet.png");
      tPlayer.loadFromFile("D:\\project_QT\\mini_project\\mario\\fang.png");
-     anima::AnimationManager listAnim;
      listAnim.create("walk", tPlayer,0,244,40,50,6);
      listAnim.create("jump", tPlayer,0,528,29,30,4);
      listAnim.create("duck", tPlayer,0,436,80,20,1);
      listAnim.create("stay", tPlayer,0,187,42,52,3);
      listAnim.create("shoot",tPlayer,0,572,45,52,5);
-     PLAYER Mario(&listAnim);
-     listAnim.set("walk");
+     animBullet.create("move",   aBulet,7,10,8,8,1);
+     animBullet.create("explode",aBulet,27,7,18,18,4);
      while(window.isOpen())
      {
          window.clear(sf::Color::White);
@@ -166,6 +116,9 @@ int main()
          {
              if(event.type == sf::Event::Closed)
                  window.close();
+             if(event.type == sf::Event::KeyPressed)
+                 if(event.key.code == sf::Keyboard::Space)
+                     entity.push_back(new Bullet(&animBullet,20,50,1));
              if(event.type == sf::Event::MouseButtonPressed)
              {
                  std::cout<<"Click on mouse button"<<std::endl;
@@ -176,12 +129,22 @@ int main()
          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))    Mario.key["Up"]    = true;
          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))  Mario.key["Down"]  = true;
          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) Mario.key["Space"] = true;
-
-         offsetX = Mario.left;
-         //offsetY = Mario.top;
+         for(it=entity.begin(); it != entity.end(); )
+         {
+             Entity *b = *it;
+             b->update(3);
+             b->draw(window);
+             if(b->life == false)
+             {
+                 it = entity.erase(it);
+                 delete b;
+             }
+             else
+                 it++;
+         }
          draw_map(window);
          Mario.update(1.2);
-         listAnim.draw(window,0,0);//screen_width/2 ,screen_height/2);
+         Mario.draw(window);
          window.display();
     }
     return 0;

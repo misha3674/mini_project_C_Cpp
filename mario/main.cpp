@@ -52,6 +52,7 @@ int TileMap[H][W] = {
     {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
+void draw_map(sf::RenderWindow& window);
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
@@ -60,72 +61,86 @@ class PLAYER
 public:
     enum eState
     {
-        stay,
-        walk,
-        duck,
-        jump,
-        climb,
-        swim
+        STAY,
+        WALK,
+        DUCK,
+        JUMP,
+        CLIMP,
+        SWIM
     };
     eState  state;
     anima::AnimationManager* an;
     std::map<std::string,bool> key;
     int dir;
     bool onLadder, shoot, hit;
-    int  dx,dy,
+    float top;
+    float left;
+    float  dx,dy,
          x,y,
          w,h;
     PLAYER(anima::AnimationManager* a)
     {
         an = a;
-        state=stay;
+        state=STAY;
         hit=false;
         an->play();
         dx=dy=x=y=h=w= 0;
         dir = 0;
+        top  = 0;
+        left = 0;
     }
     void Keyboard()
     {
-        dir = 0;
+        state = STAY;
+        shoot=false;
         if (key["L"])
         {
             dir=1;
-            state=walk;
+            dx = -0.1;
+            state=WALK;
         }
         if (key["R"])
         {
             dir=0;
-            state=walk;
+            dx = 0.1;
+            state=WALK;
         }
         if (key["Up"])
         {
-            state = jump;
+            state = JUMP;
+            dy = -0.25;
         }
         if (key["Down"])
         {
-            state = duck;
+            state = DUCK;
         }
         if (key["Space"])
             shoot=true;
     }
     void setAnimation()
     {
-        if (state==stay)
+        if (state==STAY)
             an->set("stay");
-        if (state==walk)
+        if (state==WALK)
             an->set("walk");
-        if (state==jump)
+        if (state==JUMP)
             an->set("jump");
-        if (state==duck)
+        if (state==DUCK)
             an->set("duck");
+        if(shoot)
+            an->set("shoot");
         an->flip(dir);
     }
     void update(float time)
     {
         Keyboard();
+        top  += dy;
+        left += dx;
         setAnimation();
         an->tick(time);
         key["R"]=key["L"]=key["Up"]=key["Down"]=key["Space"]=false;
+        dx = 0;
+        dy = 0;
     }
 };
 // ----------------------------------------------------------------------
@@ -161,9 +176,36 @@ int main()
          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))    Mario.key["Up"]    = true;
          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))  Mario.key["Down"]  = true;
          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) Mario.key["Space"] = true;
+
+         offsetX = Mario.left;
+         //offsetY = Mario.top;
+         draw_map(window);
          Mario.update(1.2);
-         listAnim.draw(window,50,100);
+         listAnim.draw(window,0,0);//screen_width/2 ,screen_height/2);
          window.display();
     }
     return 0;
+}
+void draw_map(sf::RenderWindow& window)
+{
+    sf::RectangleShape s(sf::Vector2f(float(16),float(16)));
+    for(int i = 0; i < H; i++)
+        for(int j = 0; j < W; j++)
+        {
+            switch(TileMap[i][j])
+            {
+                case 0:
+                   continue;
+                break;
+                case 16:
+                    s.setFillColor(sf::Color::Red);
+                break;
+                case 1:
+                    s.setFillColor(sf::Color::Blue);
+                break;
+            }
+            s.setPosition(sf::Vector2f(j*16 - offsetX,
+                                       i*16 - offsetY ));
+            window.draw(s);
+        }
 }

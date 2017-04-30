@@ -21,7 +21,7 @@ class Animation_my{
     {
        currentFrame = 0;
        step = 40;
-       speed = 0.0035;
+       speed = 0.0025;
        sprite.setTexture(image);
        isPlay = true;
        isFlip = false;

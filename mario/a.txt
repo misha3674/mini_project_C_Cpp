@@ -1,30 +1,26 @@
 #include <iostream>
-#include <string>
-#include <vector>
 #include <map>
-#include "SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
+#include "animationmanager.h"
+#include "player.h"
 
-const int H = 30;
-const int W = 40;
-const int sizeTail = 16;
-const int screen_height = H*sizeTail;
-const int screen_width  = W*sizeTail;
-const int size_char_x  = 40;
-const int size_char_y  = 50;
-float offsetX = 0;
-float offsetY = 0;
-enum obj{
-  EMPTY = 0,
-  WALL,
-  TRE,
-  BONUS
+enum eState
+{
+    STAY,
+    WALK,
+    DUCK,
+    JUMP,
+    CLIMP,
+    SWIM
 };
-
-int TileMap[H][W] = {
- {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+eState  state;
+const int gH = 30;
+const int gW = 40;
+int gTileMap[gH][gW] = {
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {1,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -32,7 +28,7 @@ int TileMap[H][W] = {
     {1,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,1},
-    {1,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -53,392 +49,128 @@ int TileMap[H][W] = {
  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-// ----------------------------------------------------------------------------------
-class Animation_my{
-  private:
-    std::vector<sf::IntRect>  frame,flip_frame;
-    float currentFrame;
-    int step;
-    float speed;//  setSpeed();
- public:
-    sf::Sprite sprite;
-    bool isFlip, isPlay;
-    Animation_my()
+game::Player::Player(game::AnimationManager* pA)
+{
+    this->am = pA;
+    state=STAY;
+    this->hit      =false;
+    this->onLadder = false;
+    this->shoot    = false;
+    this->onGround = false;
+    this->am->play();
+    this->dx  = 0;
+    this->dy  = 0;
+    this->w   = 40;
+    this->h   = 50;
+    this->x   = 0;
+    this->y   = 0;
+    this->dir = 0;
+}
+//-------------------------------------------------------------------------------
+void game::Player::keyboard()
+{
+    state = STAY;
+    this->shoot=false;
+    if (this->key["L"])
     {
-        std::cout<<"empty constructor animation\n";
+        dir=1;
+        dx = -0.1;
+        state=WALK;
     }
-    Animation_my(sf::Texture &image,int x, int y, int w, int h,int count)
+    if (this->key["R"])
     {
-       currentFrame = 0;
-       step = 40;
-       speed = 0.001;
-       sprite.setTexture(image);
-       isPlay = true;
-       isFlip = false;
-       for(int i = 0; i < count; i++)
-       {
-           frame.push_back(sf::IntRect(x+i*step,y,w,h));
-           flip_frame.push_back(sf::IntRect(x+i*step+w,y,-w,h));
-       }
-       std::cout<<"constructor animation\n";
+        dir=0;
+        dx = 0.1;
+        state=WALK;
     }
-    void tick(float time)
+    if (this->key["Up"])
     {
-       if(!isPlay)
-           return;
-       currentFrame += speed*time;
-       if(currentFrame > frame.size())
-           currentFrame -= frame.size();
-
-       int i = currentFrame;
-       if(!isFlip)
-            sprite.setTextureRect(frame[i]);
-       else
-           sprite.setTextureRect(flip_frame[i]);
-
+        state = JUMP;
+        onGround = false;
     }
-};
-// ----------------------------------------------------------------------------------
-class AnimationMananger{
-  public:
-      std::string currentAnamation;
-      std::map<std::string, Animation_my> animList;
-      AnimationMananger()
-      {
-           std::cout<< "Animation manange conttructor\n";
-      }
-      void create(std::string name, sf::Texture &qimage,
-                  int qx, int qy,
-                  int qw, int qh,
-                  int qcount)
-      {
-          animList[name] = Animation_my(qimage,qx,qy,qw,qh,qcount);
-          currentAnamation = name;
-      }
-      void draw(sf::RenderWindow &aWindow, int x = 0, int y = 0)
-      {
-          animList[currentAnamation].sprite.setPosition(x,y);
-          aWindow.draw( animList[currentAnamation].sprite);
-      }
-      void set(std::string name)
-      {
-          currentAnamation = name;
-      }
-      void flip(bool b)
-      {
-          animList[currentAnamation].isFlip = b;
-      }
-      void tick(float time)
-      {
-          animList[currentAnamation].tick(time);
-      }
-      void pause()
-      {
-          animList[currentAnamation].isPlay = false;
-      }
-      void play()
-      {
-          animList[currentAnamation].isPlay = true;
-      }
-};
-// ----------------------------------------------------------------------------------
-class Player{
-  public:
-    float dx,dy;
-    sf::FloatRect character;
-    bool onGround;
-    sf::Sprite sprite;
-    float currentFrame;
-    // constructor
-    Player(sf::Texture &image )
+    if (this->key["Down"])
     {
-        sprite.setTexture(image);
-        character = sf::FloatRect(sizeTail,0,size_char_x,size_char_y);
+        state = DUCK;
+    }
+    if (this->key["Space"])
+        shoot=true;
+}
+//-------------------------------------------------------------------------------
+void game::Player::setAnimation()
+{
+    if (state==STAY)
+        am->set("stay");
+    if (state==WALK)
+        am->set("walk");
+    if (state==JUMP)
+       am->set("jump");
+    if (state==DUCK)
+        am->set("duck");
+    if(shoot)
+       am->set("shoot");
+    am->flip(dir);
+}
+//-------------------------------------------------------------------------------
+void game::Player::update(float time)
+{
+        this->keyboard();
+        x += dx;
+        //colision(true);
+        if(!onGround)
+        {
+            onGround = true;
+            dy = -0.8;
+        }
+        else
+            dy = 0.1;
+        y += dy; // gravity
+        //colision(false);
+        this->setAnimation();
+        am->tick(time);
+        key["R"]=key["L"]=key["Up"]=key["Down"]=key["Space"]=false;
         dx = 0;
         dy = 0;
-        onGround = 0;
-        currentFrame = 0;
-    }
-    void update(float time)
-    {
-        // position player
-        character.left += dx*time;
-        // chack oX
-        if(character.left < 0)
-            character.left = sizeTail;
-        if(character.left > ((W-1)*sizeTail-size_char_x))
-            character.left = ((W-1)*sizeTail-size_char_x);
-        Collision(0); // oX
-        if(!onGround)
-            dy = dy+0.0005*time;  //gravity
-        character.top  += dy*time;
-        onGround = false;
-        // check oY
-        if(character.top < 0)
-            character.top = size_char_y;
-        if(character.top > (screen_height-size_char_y-1*sizeTail))
-        {
-            character.top = (screen_height-size_char_y-1*sizeTail);
-            dy = 0;
-            onGround = true;
-        }
-        Collision(1); // oY
-
-        currentFrame += 0.005*time;
-        if(currentFrame > 6)
-            currentFrame -=6;
-        // ren left/right
-        if(dx > 0)
-            sprite.setTextureRect(sf::IntRect(40*int(currentFrame),244,size_char_x,size_char_y));
-        if(dx < 0)
-            sprite.setTextureRect(sf::IntRect(40*int(currentFrame)+40,244,-size_char_x,size_char_y));
-
-        sprite.setPosition(character.left-offsetX, character.top-offsetY);
-        // reset parameter
-        dx = 0;
-    }
-private:
-    void Collision( int dir)
-    {
-        for(unsigned   i = character.top/sizeTail;    i < (character.top   + character.height)/sizeTail; i++)
-          for(unsigned j = character.left/sizeTail; j < (character.width + character.left)/sizeTail;   j++)
-          {
-              if(i > H)
-                  continue;
-              if(j > W)
-                  continue;
-              if(TileMap[i][j] == 1 || (TileMap[i][j] == 16))
-              {
-                  if(dx > 0 && dir == 0)
-                      character.left = j*sizeTail - character.width;
-                  if(dx < 0 && dir == 0)
-                      character.left = j*sizeTail + sizeTail;
-                  if(dy > 0 && dir == 1)
-                  {
-                      character.top = i*sizeTail - character.height;
-                      dy = 0;
-                      onGround = true;
-                  }
-                  if(dy < 0 && dir == 1)
-                  {
-                      character.top = i*sizeTail + sizeTail;
-                      dy = 0;
-                  }
-              }
-          }
-    }
-};
-// ----------------------------------------------------------------------
-class ENEMY
+}
+//-------------------------------------------------------------------------------
+void game::Player::colision(int direct)
 {
-
-public:
-float dx,dy;
-sf::FloatRect rect;
-sf::Sprite sprite;
-float currentFrame;
-bool life;
-
-
-   void set(sf::Texture &image, int x, int y)
-   {
-    sprite.setTexture(image);
-    rect = sf::FloatRect(x,y,16,16);
-
-    dx=0.05;
-    currentFrame = 0;
-    life=true;
-   }
-
-   void update(float time)
-   {
-     rect.left += dx * time;
-
-     Collision();
-
-
-     currentFrame += time * 0.005;
-     if (currentFrame > 2) currentFrame -= 2;
-
-    sprite.setTextureRect(sf::IntRect(18*int(currentFrame),   0, 16,16));
-    if (!life) sprite.setTextureRect(sf::IntRect(58, 0, 16,16));
-
-
-    sprite.setPosition(rect.left - offsetX, rect.top - offsetY);
-
-   }
-
-
-   void Collision()
-  {
-
-    for (int i = rect.top/16 ; i<(rect.top+rect.height)/16; i++)
-        for (int j = rect.left/16; j<(rect.left+rect.width)/16; j++)
-             if ((TileMap[i][j]=='P') || (TileMap[i][j]=='0'))
-             {
-                    if (dx>0)
-                    { rect.left =  j*16 - rect.width; dx*=-1; }
-                    else if (dx<0)
-                         { rect.left =  j*16 + 16;  dx*=-1; }
-
+        float lJ = (x+40)/16;
+        float lI = (y+50)/16;
+        for(int i = this->y/16;     i < lI; i++)
+            for(int j = lJ - 1; j >= this->x/16; j--)
+            {
+                if( (gTileMap[i][j] == 1) || (gTileMap[i][j] == 16))
+                {
+                    if(direct)
+                    {
+                        if(i == 0)
+                            continue; // top wall
+                        if(i == (gH-1))
+                            continue; // bottom wall
+                        if(dx > 0)
+                            x = j*16 - w; //sizeTail, Why size_char_x???
+                        if(dx < 0)
+                            x = j*16 + 16;
+                    }
+                    else
+                    {
+                        if(j == 0)
+                            continue; // left wall
+                        if(j == (gW-1))
+                            continue; // left wall
+                        if(dy > 0)
+                        {
+                            y = i*16 - h;
+                        }
+                        if(dy < 0)
+                        {
+                            y = i*16 + 16;
+                        }
+                    }
+                }
             }
-  }
-
-};
-// ----------------------------------------------------------------------
-int main()
+}
+void game::Player::draw(sf::RenderWindow &aWindow)
 {
-    sf::RenderWindow window(sf::VideoMode(340,340),"SFFL");
-
-    sf::Texture tPlayer;
-    sf::Texture tileSet;
-    tPlayer.loadFromFile("D:\\project_QT\\mini_project\\mario\\fang.png");
-    tileSet.loadFromFile("D:\\project_QT\\mini_project\\mario\\Mario_Tileset.png");
-    sf::Sprite tile(tileSet);
-
-    Player p(tPlayer);
-
-    ENEMY  enemy;
-    enemy.set(tileSet,32,310);
-
-
-    sf::Clock clock;
-    sf::RectangleShape rectangle; // buffer for brick of the map
-    rectangle.setSize(sf::Vector2f(sizeTail,sizeTail));
-
-
-     while(window.isOpen())
-     {
-         window.clear(sf::Color::White);
-         sf::Event event;
-         while(window.pollEvent(event))
-         {
-             if(event.type == sf::Event::Closed)
-                 window.close();
-             if(event.type == sf::Event::MouseButtonPressed)
-             {
-                 std::cout<<"Click on mouse button"<<std::endl;
-             }
-         }
-         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-         {
-             p.dx = -0.1;
-
-         }
-         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-         {
-             p.dx = 0.1;
-         }
-         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-         {
-             if(p.onGround)
-             {
-                 p.dy = -0.25;
-                 p.onGround = false;
-             }
-         }
-         p.update(1.5);
-         enemy.update(1.5);
-
-         if  (p.character.intersects( enemy.rect ) )
-                  {
-                      if (enemy.life)
-                      {
-                          if (p.dy>0)
-                          {
-                              enemy.dx=0;
-                              p.dy=-0.2;
-                              enemy.life=false;
-                          }
-                          else
-                              p.sprite.setColor(sf::Color::Red);
-                      }
-                  }
-         offsetX = p.character.left-340/2;
-         offsetY = p.character.top -340/2;
-        // map align center
-         if(p.character.left > 340/2)
-            offsetX = p.character.left - 340/2;
-         if(p.character.top > 340/2)
-            offsetY = p.character.top - 340/2;
-        // draw  map
-         for(int i = 0; i < H; i++)
-           for(int j = W-1; j >= 0; j--)
-           {
-               int is = 0;
-               if(TileMap[i][j] == 0)
-                   continue;
-               if(TileMap[i][j] == 1)
-               {
-                   rectangle.setFillColor(sf::Color::Black);
-                   is = 1;
-               }
-               if(TileMap[i][j] == 2)
-               {
-                   rectangle.setFillColor(sf::Color::Green);
-                   is = 1;
-               }
-               rectangle.setPosition(j*sizeTail-offsetX,i*sizeTail-offsetY);
-               if(is)
-                    window.draw(rectangle);
-               //--------------------------------------
-                is = 0;
-               if (TileMap[i][j]==15)
-               {
-                   tile.setTextureRect( sf::IntRect(143-16*3,112,16,16) );
-                   is = 1;
-               }
-
-               if (TileMap[i][j]==16)
-               {
-                   tile.setTextureRect( sf::IntRect(143,112,16,16) );
-                   is = 1;
-               }
-               if (TileMap[i][j]==17)
-               {
-                   tile.setTextureRect( sf::IntRect(143-16,112,16,16) );
-                   is = 1;
-               }
-                if (TileMap[i][j]==18)
-                {
-                    tile.setTextureRect( sf::IntRect(0,47,32,95-47) );
-                    is = 1;
-                }
-                if (TileMap[i][j]==19)
-                 {
-                    tile.setTextureRect( sf::IntRect(0,16*9-5,3*16,16*2+5) );
-                    is = 1;
-                }
-                if (TileMap[i][j]==20)
-                 {
-                    tile.setTextureRect( sf::IntRect(145,222,222-145,255-222) );
-                    is = 1;
-                }
-                if (TileMap[i][j]==21)
-                 {
-                    tile.setTextureRect( sf::IntRect(0,106,74,127-106) );
-                    is = 1;
-                }
-                if (TileMap[i][j]==22)
-                {
-                    tile.setTextureRect( sf::IntRect(99,224,140-99,255-224) );
-                    is = 1;
-                }
-                if (TileMap[i][j]==23)
-                 {
-                    tile.setTextureRect( sf::IntRect(143-32,112,16,16) );
-                    is = 1;
-                }
-                if(is)
-                {
-                    tile.setPosition(j*sizeTail-offsetX,i*sizeTail-offsetY);
-                    window.draw(tile);
-                }
-               //--------------------------------------
-           }
-         window.draw(p.sprite);
-         window.draw(enemy.sprite);
-         window.display();
-    }
-    return 0;
+    am->draw(aWindow,this->x,this->y);
 }

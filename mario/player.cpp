@@ -14,7 +14,8 @@ enum eState
     SWIM
 };
 eState  state;
-
+const int gH = 30;
+const int gW = 40;
 game::Player::Player(game::AnimationManager* pA)
 {
     this->am = pA;
@@ -26,8 +27,8 @@ game::Player::Player(game::AnimationManager* pA)
     this->am->play();
     this->dx  = 0;
     this->dy  = 0;
-    this->w   = 0;
-    this->h   = 0;
+    this->w   = 40;
+    this->h   = 50;
     this->x   = 0;
     this->y   = 0;
     this->dir = 0;
@@ -81,16 +82,14 @@ void game::Player::update(float time)
 {
         this->keyboard();
         x += dx;
-        colision(true);
         if(!onGround)
         {
             onGround = true;
-            dy = -0.9;
+            dy = -0.8;
         }
         else
-            dy = 0.15;
+            dy = 0.1;
         y += dy; // gravity
-        colision(false);
         this->setAnimation();
         am->tick(time);
         key["R"]=key["L"]=key["Up"]=key["Down"]=key["Space"]=false;
@@ -100,18 +99,18 @@ void game::Player::update(float time)
 //-------------------------------------------------------------------------------
 void game::Player::colision(int direct)
 {
-        /*float lJ = (x+size_char_x)/sizeTail;
-        float lI = (y+size_char_y)/sizeTail;
-        for(int i = this->y/sizeTail;     i < lI; i++)
-            for(int j = lJ - 1; j >= this->x/sizeTail; j--)
+        float lJ = (x+40)/16;
+        float lI = (y+50)/16;
+        for(int i = this->y/16;     i < lI; i++)
+            for(int j = lJ - 1; j >= this->x/16; j--)
             {
-                if( (TileMap[i][j] == 1) || (TileMap[i][j] == 16))
+                if( (gTileMap[i][j] == 1) || (gTileMap[i][j] == 16))
                 {
                     if(direct)
                     {
                         if(i == 0)
                             continue; // top wall
-                        if(i == (H-1))
+                        if(i == (gH-1))
                             continue; // bottom wall
                         if(dx > 0)
                             x = j*16 - w; //sizeTail, Why size_char_x???
@@ -122,7 +121,7 @@ void game::Player::colision(int direct)
                     {
                         if(j == 0)
                             continue; // left wall
-                        if(j == (W-1))
+                        if(j == (gW-1))
                             continue; // left wall
                         if(dy > 0)
                         {
@@ -134,7 +133,7 @@ void game::Player::colision(int direct)
                         }
                     }
                 }
-            }*/
+            }
 }
 void game::Player::draw(sf::RenderWindow &aWindow)
 {

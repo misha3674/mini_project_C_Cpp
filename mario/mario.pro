@@ -5,7 +5,11 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     animationmanager.cpp \
-    player.cpp
+    player.cpp \
+    TinyXML/tinystr.cpp \
+    TinyXML/tinyxml.cpp \
+    TinyXML/tinyxmlerror.cpp \
+    TinyXML/tinyxmlparser.cpp
 
 win32: LIBS += -L$$PWD/SFML/bin/ -lopenal32 -lsfml-audio-2
 win32: LIBS += -L$$PWD/SFML/bin/ -lsfml-audio-d-2 -lsfml-graphics-2 -lsfml-graphics-d-2 -lsfml-network-2
@@ -82,7 +86,10 @@ HEADERS += \
     SFML/System.hpp \
     animationmanager.h \
     entity.h \
-    player.h
+    player.h \
+    level.h \
+    TinyXML/tinystr.h \
+    TinyXML/tinyxml.h
 
 DISTFILES += \
     a.txt

@@ -16,7 +16,6 @@ namespace game{
                    w,h;
             void keyboard();
             void setAnimation();
-            void colision(int direct);
         public:
             Player(game::AnimationManager* pA);
             void update(float time);

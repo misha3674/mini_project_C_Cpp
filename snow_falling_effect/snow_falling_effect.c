@@ -1,7 +1,7 @@
 #include "snow_falling_effect.h"
 #include <stdio.h>
 #include <GL/gl.h>
-#include "glfw/include/glfw3.h"
+#include "../external_libs/glfw/include/glfw3.h"
 //------------------------------------------------------------------------------
 #define SCREEN_WIDTH        800
 #define SCREEN_HEIGHT       600

@@ -1,7 +1,8 @@
 #include <vector>
 #include <iostream>
 #include <map>
-#include <SFML/Graphics.hpp>
+#include "../external_libs/SFML/Graphics.hpp"
+#include <TinyXML/tinyxml.h>
 #include "animationmanager.h"
 
 class Animation_my{

@@ -4,7 +4,7 @@
 #include <map>
 #include <list>
 #include<windows.h>
-#include "SFML/Graphics.hpp"
+#include "../external_libs/SFML/Graphics.hpp"
 #include "animationmanager.h"
 #include "player.h"
 #include "entity.h"
@@ -55,8 +55,10 @@ int main()
      game::AnimationManager listAnim;
      game::AnimationManager animBullet;
      game::AnimationManager anim3;
+
      std::list<Entity*> entity;
      std::list<Entity*>::iterator it;
+
      game::Player Mario(&listAnim);
      Level lvl;
      enemy_t.loadFromFile("D:\\project_QT\\mini_project\\mario\\enemy.png");
@@ -72,6 +74,7 @@ int main()
      listAnim.create("shoot",tPlayer,0,572,45,52,5);
      animBullet.create("move",   aBulet,7,10,8,8,1);
      animBullet.create("explode",aBulet,27,7,18,18,4);
+
      while(window.isOpen())
      {
          window.clear(sf::Color::White);
